@@ -110,7 +110,7 @@ public class AutorRepositoryTest {
 
     @Test
     void listarLivrosAutor(){
-        var id = UUID.fromString("693f5e23-fa94-44b8-bf85-1b154b321568");
+        var id = UUID.fromString("ef3dbc7b-eb20-48ef-8c22-6c0789e4bb0f");
         var autor = repository.findById(id).get();
 
         List<Livro> livrosLista = livroRepository.findByAutor(autor);
