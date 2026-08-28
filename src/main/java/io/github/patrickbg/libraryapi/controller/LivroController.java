@@ -38,4 +38,13 @@ public class LivroController implements GenericController {
             return ResponseEntity.ok(dto);
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Object> deletar(@PathVariable("id") UUID id) {
+        return livroService.obterPorId(id)
+                .map(livro -> {
+                    livroService.deletar(livro);
+                    return ResponseEntity.noContent().build();
+                }).orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }
