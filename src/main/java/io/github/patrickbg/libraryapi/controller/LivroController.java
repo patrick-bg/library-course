@@ -2,7 +2,9 @@ package io.github.patrickbg.libraryapi.controller;
 
 import io.github.patrickbg.libraryapi.controller.dto.CadastroLivroDTO;
 import io.github.patrickbg.libraryapi.controller.dto.ErroResposta;
+import io.github.patrickbg.libraryapi.controller.mappers.LivroMapper;
 import io.github.patrickbg.libraryapi.exceptions.RegistroDuplicadoException;
+import io.github.patrickbg.libraryapi.model.Livro;
 import io.github.patrickbg.libraryapi.service.LivroService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,15 +18,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("livros")
 @RequiredArgsConstructor
-public class LivroController {
+public class LivroController implements GenericController {
 
     private final LivroService livroService;
+    private final LivroMapper livroMapper;
 
     @PostMapping
     public ResponseEntity<Object> salvar(@RequestBody @Valid CadastroLivroDTO dto){
         try{
-            //
-            return ResponseEntity.ok(dto);
+            Livro livro = livroMapper.toEntity(dto);
+            livroService.salvar(livro);
+
+            var url = gerarHeaderLocation(livro.getId());
+
+            return ResponseEntity.created(url).build();
 
         }catch (RegistroDuplicadoException e){
             var erroDTO = ErroResposta.conflito(e.getMessage());
