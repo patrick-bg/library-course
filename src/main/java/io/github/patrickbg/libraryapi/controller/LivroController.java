@@ -62,9 +62,27 @@ public class LivroController implements GenericController {
             @RequestParam(value = "genero", required = false)
             GeneroLivro genero,
             @RequestParam(value = "anoPublicacao", required = false)
-            Integer anoPublicacao){
-         var resultado = livroService.pesquisa(isbn, titulo, nomeAutor, genero, anoPublicacao);
-         var lista = resultado.stream().map(livroMapper::toDto).collect(Collectors.toList());
-         return ResponseEntity.ok(lista);
-        }
+            Integer anoPublicacao) {
+        var resultado = livroService.pesquisa(isbn, titulo, nomeAutor, genero, anoPublicacao);
+        var lista = resultado.stream().map(livroMapper::toDto).collect(Collectors.toList());
+        return ResponseEntity.ok(lista);
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<Object> atualizar(@PathVariable("id") UUID id, @RequestBody @Valid CadastroLivroDTO dto) {
+        return livroService.obterPorId(id).map(livro -> {
+            Livro entidadeAux = livroMapper.toEntity(dto);
+            livro.setDataPublicacao(entidadeAux.getDataPublicacao());
+            livro.setIsbn(entidadeAux.getIsbn());
+            livro.setPreco(entidadeAux.getPreco());
+            livro.setGenero(entidadeAux.getGenero());
+            livro.setTitulo(entidadeAux.getTitulo());
+            livro.setAutor(entidadeAux.getAutor());
+
+            livroService.atualizar(livro);
+            return ResponseEntity.noContent().build();
+        }).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
 }
+
