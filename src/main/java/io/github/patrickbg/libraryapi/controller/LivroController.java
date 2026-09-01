@@ -1,22 +1,19 @@
 package io.github.patrickbg.libraryapi.controller;
 
 import io.github.patrickbg.libraryapi.controller.dto.CadastroLivroDTO;
-import io.github.patrickbg.libraryapi.controller.dto.ErroResposta;
 import io.github.patrickbg.libraryapi.controller.dto.ResultadoPesquisaLivroDTO;
 import io.github.patrickbg.libraryapi.controller.mappers.LivroMapper;
-import io.github.patrickbg.libraryapi.exceptions.RegistroDuplicadoException;
 import io.github.patrickbg.libraryapi.model.GeneroLivro;
 import io.github.patrickbg.libraryapi.model.Livro;
 import io.github.patrickbg.libraryapi.service.LivroService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("livros")
@@ -52,7 +49,7 @@ public class LivroController implements GenericController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ResultadoPesquisaLivroDTO>> pesquisa(
+    public ResponseEntity<Page<ResultadoPesquisaLivroDTO>> pesquisa(
             @RequestParam(value = "isbn", required = false)
             String isbn,
             @RequestParam(value = "titulo", required = false)
@@ -62,10 +59,17 @@ public class LivroController implements GenericController {
             @RequestParam(value = "genero", required = false)
             GeneroLivro genero,
             @RequestParam(value = "anoPublicacao", required = false)
-            Integer anoPublicacao) {
-        var resultado = livroService.pesquisa(isbn, titulo, nomeAutor, genero, anoPublicacao);
-        var lista = resultado.stream().map(livroMapper::toDto).collect(Collectors.toList());
-        return ResponseEntity.ok(lista);
+            Integer anoPublicacao,
+            @RequestParam(value = "pagina", defaultValue = "0")
+            Integer pagina,
+            @RequestParam(value = "tamanhoPagina", defaultValue = "10")
+            Integer tamanhoPagina
+    ) {
+        Page<Livro> paginaResultado = livroService.pesquisa(isbn, titulo, nomeAutor, genero, anoPublicacao, pagina, tamanhoPagina);
+
+        Page<ResultadoPesquisaLivroDTO> resultado = paginaResultado.map(livroMapper::toDto);
+
+        return ResponseEntity.ok(resultado);
     }
 
     @PutMapping("{id}")
