@@ -1,5 +1,7 @@
 package io.github.patrickbg.libraryapi.config;
 
+import io.github.patrickbg.libraryapi.security.CustomUserDetailsService;
+import io.github.patrickbg.libraryapi.service.UsuarioService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -43,20 +45,25 @@ public class SecurityConfiguration {
 
 
     @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder encoder){
-        UserDetails user1 = User.builder()
-                .username("usuario")
-                .password(encoder.encode("123"))
-                .roles("USER")
-                .build();
+    public UserDetailsService userDetailsService(UsuarioService  usuarioService) {
 
-        UserDetails user2 = User.builder()
-                .username("admin")
-                .password(encoder.encode("321"))
-                .roles("ADMIN")
-                .build();
+//         Código para aplicação em memória:
+//        UserDetails user1 = User.builder()
+//                .username("usuario")
+//                .password(encoder.encode("123"))
+//                .roles("USER")
+//                .build();
+//
+//        UserDetails user2 = User.builder()
+//                .username("admin")
+//                .password(encoder.encode("321"))
+//                .roles("ADMIN")
+//                .build();
+//
+//        return new InMemoryUserDetailsManager(user2, user1);
 
-        return new InMemoryUserDetailsManager(user2, user1);
+        return new CustomUserDetailsService(usuarioService);
+
     }
 
 }
