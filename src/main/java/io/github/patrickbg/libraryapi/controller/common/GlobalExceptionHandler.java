@@ -1,17 +1,15 @@
 package io.github.patrickbg.libraryapi.controller.common;
 
-import io.github.patrickbg.libraryapi.controller.dto.AutorDTO;
 import io.github.patrickbg.libraryapi.controller.dto.ErroCampo;
 import io.github.patrickbg.libraryapi.controller.dto.ErroResposta;
 import io.github.patrickbg.libraryapi.exceptions.CampoInvalidoException;
 import io.github.patrickbg.libraryapi.exceptions.OperacaoNaoPermitidaException;
 import io.github.patrickbg.libraryapi.exceptions.RegistroDuplicadoException;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -51,9 +49,18 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErroResposta handleAccessDeniedException(AccessDeniedException e) {
+        return new ErroResposta(HttpStatus.FORBIDDEN.value(),
+                "Acesso Negado.",
+                List.of());
+    }
+
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErroResposta handleErrosNaoTratados(RuntimeException e) {
+        System.out.println(e.getMessage());
         return new ErroResposta(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Erro inesperado. Entre em contato com a administração!",
                 List.of());
