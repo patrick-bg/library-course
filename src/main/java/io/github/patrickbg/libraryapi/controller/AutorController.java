@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/autores")
 @RequiredArgsConstructor
 @Tag(name = "Autores")
+@Slf4j
 public class AutorController implements GenericController {
 
     private final AutorService autorService;
@@ -38,6 +40,9 @@ public class AutorController implements GenericController {
             @ApiResponse(responseCode = "409", description = "Autor já cadastrado.")
     })
     public ResponseEntity<Void> salvar(@RequestBody @Valid AutorDTO dto) {
+        log.info("Salvando autor: {}", dto.nome());
+
+
         Autor autor = autorMapper.toEntity(dto);
         autorService.salvar(autor);
         URI location = gerarHeaderLocation(autor.getId());
@@ -69,6 +74,7 @@ public class AutorController implements GenericController {
             @ApiResponse(responseCode = "400", description = "Autor possui livro cadastrado.")
     })
     public ResponseEntity<Void> deletar(@PathVariable("id") UUID id) {
+        log.info("Deletando autor de ID: {}", id);
         Optional<Autor> autorOptional = autorService.obterPorId(id);
         if (autorOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -98,6 +104,7 @@ public class AutorController implements GenericController {
             @ApiResponse(responseCode = "409", description = "Autor já cadastrado.")
     })
     public ResponseEntity<Void> atualizar(@PathVariable("id") UUID id, @RequestBody @Valid AutorDTO dto) {
+        log.info("Atualizando autor: {}", dto.nome());
         Optional<Autor> autorOptional = autorService.obterPorId(id);
         if (autorOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
